@@ -61,3 +61,7 @@ server.run
 # Some preforking servers, notably Unicorn 2, have the parent process take a more active role in monitoring its children. 
 # For example, the parent may look to see if any of the children are taking a long time to process a request. In that 
 # case the parent process will forcefully kill the child process and spawn a new one in its place
+
+# The core of this method should be familiar. This time it's wrapped in a fork and a loop . So a new child process 
+# is forked before calling accept . The outermost loop ensures that as each connection is handled and closed, 
+# a new connection is handled. In this way each child process will be in its own accept loop.
