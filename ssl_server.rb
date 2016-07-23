@@ -2,7 +2,7 @@ require 'socket'
 require 'openssl'
 
 def main
-	server = TCPSocket.new(4481)
+	server = TCPServer.new(4481)
 
 	ctx = OpenSSL::SSL::SSLContext.new
 	ctx.cert, ctx.key = create_self_signed_cert(
@@ -12,8 +12,10 @@ def main
 		)
 	ctx.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
+	# Build the SSL wrapper around the TCP server
 	ssl_server = OpenSSL::SSL::SSLServer.new(server, ctx)
 
+  # Accept connections on the SSL socket
 	connection = ssl_server.accept
 	connection.write("Bah now")
 	connection.close
@@ -45,7 +47,7 @@ def create_self_signed_cert(bits, cn, comment)
 	ef = OpenSSL::X509::ExtensionFactory.new(nil, cert)
 	ef.issuer_certificate = cert
 	cert.extensions = [
-		ef.create_extension("basicConstains","CA:FALSE"),
+		ef.create_extension("basicConstraints","CA:FALSE"),
 		ef.create_extension("keyUsage","keyEncipherment"),
 		ef.create_extension("subjectKeyIdentifier","hash"),
 		ef.create_extension("extendedKeyUsage","serverAuth"),
